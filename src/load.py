@@ -15,32 +15,46 @@ def load_fiches(data_dir: Path = DATA_DIR) -> list[dict]:
     return fiches                                   # 6. renvoyer la liste complète
 
 
+
 def chunk_fiche(fiche: dict, max_chars: int = 800) -> list[dict]:
     """Découpe une fiche en passages, un par section (titre Markdown)."""
     passages = []
-    section = "Introduction"     # titre de la section en cours
-    lignes = []                  # lignes de la section en cours
-    dans_code = False            # E. au départ, est-on dans un bloc de code ?
-
+    section = "Introduction"
+    lignes = []
+    dans_code = False
     for ligne in fiche["text"].splitlines():
         if ligne.startswith("```"):
-            dans_code = not dans_code                    # F. basculer True <-> False
-
-        if ligne.startswith("#") and not dans_code:      # G. un titre, seulement hors d'un bloc de code
-            texte = "\n".join(lignes).strip()           # recoller la section précédente
-            if len(texte) >= 50:                        # ignorer les sections presque vides
-                passages.append({"source": fiche["source"], "section": section, "text": texte})
-            section = ligne.lstrip("#").strip()         # le nouveau titre, sans les #
-            lignes = []                                 # on repart de zéro
+            dans_code = not dans_code
+        if ligne.startswith("#") and not dans_code:
+            texte = "\n".join(lignes).strip()
+            if len(texte) >= 50:
+                for morceau in decouper_texte(texte, max_chars):
+                    passages.append({"source": fiche["source"], "section": section, "text": morceau})
+            section = ligne.lstrip("#").strip()
+            lignes = []
         else:
-            lignes.append(ligne)                        # une ligne normale : on la garde
-
-    # traiter la dernière section (aucun titre ne la suit)
+            lignes.append(ligne)
     texte = "\n".join(lignes).strip()
     if len(texte) >= 50:
-        passages.append({"source": fiche["source"], "section": section, "text": texte})
+        for morceau in decouper_texte(texte, max_chars):
+            passages.append({"source": fiche["source"], "section": section, "text": morceau})
+    return passages 
 
-    return passages
+def decouper_texte(texte: str, max_chars: int) -> list[str]:
+    """Regroupe les paragraphes en morceaux de max_chars caractères maximum."""
+    paragraphes = texte.split("\n\n")          # couper sur les lignes vides
+    morceaux = []
+    courant = ""                            # la boîte en cours
+    for para in paragraphes:
+        # +2 pour le "\n\n" qu'on remettra entre les deux
+        if courant and len(courant) + len(para) + 2 > max_chars:
+            morceaux.append(courant.strip())   # on ferme la boîte
+            courant = para                     # nouvelle boîte avec ce paragraphe
+        else:
+            courant = courant + "\n\n" + para  # on ajoute à la boîte
+    if courant.strip():
+        morceaux.append(courant.strip())                    # la dernière boîte
+    return morceaux
 
 
 if __name__ == "__main__":
