@@ -1,6 +1,7 @@
 """Étape 2 : embeddings + recherche sémantique."""
 import sys
 
+import numpy as np
 from sentence_transformers import SentenceTransformer
 
 from load import load_fiches, chunk_fiche
@@ -25,13 +26,25 @@ def build_index(chunks: list[dict]):
 
 
 def search(question: str, chunks: list[dict], embeddings, top_k: int = 3) -> list[tuple[float, dict]]:
-    """TODO (séance de demain) : encoder la question, calculer la similarité cosinus
-    avec tous les passages, et renvoyer les top_k meilleurs sous forme [(score, passage), ...].
-    """
-    raise NotImplementedError
+    """Renvoie les top_k passages les plus proches de la question : [(score, passage), ...]."""
+    # 1. Encoder la question (même modèle, normalisée aussi)
+    q = model.encode(question, normalize_embeddings=True)
+
+    # 2. Un score par passage
+    scores = embeddings @ q
+
+    # 3. Les indices des top_k meilleurs scores, du plus grand au plus petit
+    meilleurs = np.argsort(scores)[::-1][:top_k]
+
+    resultats = []
+    for i in meilleurs:
+        resultats.append((float(scores[i]), chunks[i]))
+    return resultats
 
 
 if __name__ == "__main__":
+    question = " ".join(sys.argv[1:]) or "Qu'est-ce qu'une bascule JK ?"
+
     # 1. Charger les fiches
     fiches = load_fiches()
 
@@ -42,5 +55,9 @@ if __name__ == "__main__":
 
     # 3. Construire l'index
     embeddings = build_index(chunks)
-    print(len(chunks), "passages")
-    print("Index :", embeddings.shape)
+
+    # 4. Chercher et afficher
+    print("\nQuestion :", question, "\n")
+    for score, passage in search(question, chunks, embeddings):
+        print(f"[{score:.2f}] {passage['source']} › {passage['section']}")
+        print(passage["text"][:200], "...\n")
