@@ -6,7 +6,8 @@ from sentence_transformers import SentenceTransformer
 
 from load import load_fiches, chunk_fiche
 
-MODEL_NAME = "paraphrase-multilingual-MiniLM-L12-v2"  # petit modèle qui comprend le français
+MODEL_NAME = "sentence-transformers/paraphrase-multilingual-mpnet-base-v2"  # essai : modèle plus gros
+# Ancien : "paraphrase-multilingual-MiniLM-L12-v2" → 3/10 puis 5/10 avec le test juste
 
 # On charge le modèle UNE seule fois, au lancement du fichier
 model = SentenceTransformer(MODEL_NAME)
@@ -15,7 +16,7 @@ model = SentenceTransformer(MODEL_NAME)
 def build_index(chunks: list[dict]):
     """Encode chaque passage (titre de section + texte) en un vecteur.
 
-    Renvoie une matrice numpy (nb_passages x 384).
+    Renvoie une matrice numpy (nb_passages x dimension du modèle).
     """
     textes = []
     for passage in chunks:
