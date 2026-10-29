@@ -1,6 +1,6 @@
 """Mini-évaluation : est-ce qu'une des bonnes sections arrive dans le top 3 ?"""
 from load import load_fiches, chunk_fiche
-from search import build_index, search
+from search import load_or_build_index, search
 
 # (question, [morceaux de titres de sections acceptées])
 TESTS = [
@@ -21,11 +21,11 @@ TESTS = [
     ("Comment calculer la force totale exercée par plusieurs charges sur une seule ?", ["superposition"]),
 ]
 
-# Préparer les passages et l'index (une seule fois pour toutes les questions)
+# Préparer les passages et l'index (rechargé depuis le disque s'il est à jour)
 chunks = []
 for fiche in load_fiches():
     chunks.extend(chunk_fiche(fiche))
-embeddings = build_index(chunks)
+embeddings = load_or_build_index(chunks)
 
 reussites = 0
 for question, attendus in TESTS:
