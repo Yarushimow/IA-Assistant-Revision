@@ -195,7 +195,7 @@ $ ls -li
 ### Premier script shell TP1 · exo 10
 
 Un script commence par un **shebang** qui désigne l'interpréteur, puis il faut le rendre exécutable avant de le lancer avec `./`.
-
+```
 #!/bin/bash
 # affiche des infos système
 echo "=== Infos ==="
@@ -209,7 +209,7 @@ mkdir "$1"
 
 $ chmod +x mon\_script.sh # le rendre exécutable
 $ ./mon\_script.sh projet1 # ./ car le répertoire courant n'est pas dans le PATH
-
+```
 TP2
 
 ## Système de fichiers & permissions
@@ -360,7 +360,7 @@ La forme symbolique complète est `[ugoa][+-=][rwx]`. Le choix de l'opérateur c
 ### `umask` — le masque de création
 
 Le `umask` **retire** des droits aux valeurs par défaut (**666** pour un fichier, **777** pour un répertoire). On **soustrait** le masque.
-
+```
 # umask 022 (valeur par défaut courante)
 fichier : 666 − 022 = 644 (rw-r--r--)
 dossier : 777 − 022 = 755 (rwxr-xr-x)
@@ -372,7 +372,7 @@ $ mkdir nouveau\_dir
 $ ls -l
 -rw-r--r-- 1 yoan etu 0 sept. 13 nouveau.txt # 644
 drwxr-xr-x 2 yoan etu 4096 sept. 13 nouveau\_dir # 755
-
+```
 !
 
 Un fichier ne reçoit **jamais** `x` à la création, même si le calcul le permettrait : le défaut est 666, pas 777. Le `x` se pose ensuite avec `chmod`.
@@ -471,7 +471,7 @@ La distinction clé : `'$x'` affiche **`$x`** (littéral), `"$x"` affiche **la 
 ### Expansion d'accolades TP3 · exo 5
 
 Les accolades **génèrent des chaînes**, indépendamment des fichiers existants (≠ jokers qui, eux, matchent des fichiers réels).
-
+```
 $ echo a{b,c,d}e
 abe ace ade
 $ echo {1..5}
@@ -479,7 +479,7 @@ $ echo {1..5}
 $ mkdir -p projet/{src,tests,docs} # crée 3 sous-dossiers d'un coup
 $ touch fichier\_{01..03}.txt
 # crée fichier\_01.txt fichier\_02.txt fichier\_03.txt
-
+```
 →
 
 **Accolades vs jokers :** `{a,b,c}` génère `a b c` même si rien n'existe ; `[abc]` ne matche que des fichiers **présents**. C'est une question de cours classique.
@@ -600,7 +600,7 @@ Les exercices complémentaires : filtrer et transformer du texte, chaîner les 
 ### grep en détail TP4-exo · exo 3
 
 Les 4 tâches de l'exercice, résolues :
-
+```
 # 1. valeur de la constante RAND\_MAX
 $ grep -r "RAND\_MAX" /usr/include
 # 2. chemins + lignes contenant 127.0.0.1 dans /etc
@@ -610,11 +610,11 @@ $ grep -rl "127.0.0.1" /etc
 # 4. répertoire personnel de l'utilisateur games
 $ grep "^games:" /etc/passwd | cut -d: -f6
 /usr/games
-
+```
 ### Pipelines classiques
 
 La force du shell : enchaîner des petits outils avec `|`. Quelques combos qui reviennent :
-
+```
 # distribution des shells utilisés dans /etc/passwd
 $ cut -d: -f7 /etc/passwd | sort | uniq -c | sort -rn
  28 /usr/sbin/nologin
@@ -622,7 +622,7 @@ $ cut -d: -f7 /etc/passwd | sort | uniq -c | sort -rn
 1 /bin/sync
 # les 10 fichiers .h les plus légers de /usr/include
 $ wc -c /usr/include/\*.h | sort -n | head -n 10
-
+```
 →
 
 Le combo `sort | uniq -c | sort -rn` est un classique : **trier** → **compter** les doublons → **reclasser** du plus fréquent au moins fréquent.
