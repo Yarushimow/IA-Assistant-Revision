@@ -3,3 +3,4 @@ __pycache__/
 *.npy
 *.pkl
 .env
+data/index_empreinte.txt
