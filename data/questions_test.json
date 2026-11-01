@@ -1,0 +1,25 @@
+[
+  {"question": "Quelle est la différence entre une D latch et une D flip-flop ?", "fiche": "TE302", "attendus": ["Bascule D"], "difficulte": "facile"},
+  {"question": "Les entrées PRE et CLR attendent-elles un front d'horloge pour agir ?", "fiche": "TE302", "attendus": ["Entrées asynchrones PRE et CLR"], "difficulte": "facile"},
+  {"question": "Combien de temps la donnée doit-elle rester stable avant le front d'horloge ?", "fiche": "TE302", "attendus": ["Les trois temps d'une bascule"], "difficulte": "difficile"},
+  {"question": "Comment faire un compteur qui revient à zéro après 5 états ?", "fiche": "TE302", "attendus": ["Compteur modulo M"], "difficulte": "difficile"},
+  {"question": "Pourquoi un compteur asynchrone ne peut pas fonctionner à n'importe quelle fréquence ?", "fiche": "TE302", "attendus": ["Le temps de propagation"], "difficulte": "difficile"},
+
+  {"question": "Pourquoi faut-il tester curr != NULL avant de lire curr->value ?", "fiche": "TI301", "attendus": ["TD1 ex.2", "Pièges classiques au CE"], "difficulte": "moyen"},
+  {"question": "Comment supprimer une valeur dans une liste simplement chaînée ?", "fiche": "TI301", "attendus": ["TD1 ex.5"], "difficulte": "facile"},
+  {"question": "Pourquoi garder un pointeur vers la dernière cellule quand on fait une file ?", "fiche": "TI301", "attendus": ["Partie I · File avec liste ht"], "difficulte": "difficile"},
+  {"question": "Comment savoir si une liste circulaire ne contient qu'une seule cellule ?", "fiche": "TI301", "attendus": ["TD2 ex.6"], "difficulte": "moyen"},
+  {"question": "Comment trouver les paramètres et le type de retour d'une fonction à écrire ?", "fiche": "TI301", "attendus": ["Méthode pour trouver un prototype"], "difficulte": "difficile"},
+
+  {"question": "Quelle est la différence entre un chemin absolu et un chemin relatif ?", "fiche": "TI307", "attendus": ["Chemins absolu vs relatif"], "difficulte": "facile"},
+  {"question": "Pourquoi ls * n'affiche pas les fichiers qui commencent par un point ?", "fiche": "TI307", "attendus": ["Jokers"], "difficulte": "difficile"},
+  {"question": "Quelles sont les étapes de compilation d'un programme C ?", "fiche": "TI307", "attendus": ["Compilation C avec gcc"], "difficulte": "moyen"},
+  {"question": "Comment arrêter proprement un processus en lui envoyant un signal ?", "fiche": "TI307", "attendus": ["Signaux"], "difficulte": "moyen"},
+  {"question": "Pourquoi je peux supprimer un fichier sur lequel je n'ai aucun droit ?", "fiche": "TI307", "attendus": ["Quels droits pour quelle opération"], "difficulte": "difficile"},
+
+  {"question": "Comment trouver l'ensemble des points où une fonction de deux variables est définie ?", "fiche": "SM302", "attendus": ["Trouver le domaine de définition"], "difficulte": "moyen"},
+  {"question": "Qu'est-ce qu'une courbe de niveau ?", "fiche": "SM302", "attendus": ["Courbes de niveau"], "difficulte": "facile"},
+  {"question": "Si toutes les droites donnent la même limite, est-ce que la limite existe forcément ?", "fiche": "SM302", "attendus": ["Pièges classiques"], "difficulte": "difficile"},
+  {"question": "Est-ce que l'ordre compte quand on dérive deux fois par rapport à x puis à y ?", "fiche": "SM302", "attendus": ["théorème de Schwarz"], "difficulte": "moyen"},
+  {"question": "Comment dériver f(x(t), y(t)) par rapport à t ?", "fiche": "SM302", "attendus": ["Règle de la chaîne"], "difficulte": "moyen"}
+]
