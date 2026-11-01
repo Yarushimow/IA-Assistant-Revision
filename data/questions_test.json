@@ -21,5 +21,28 @@
   {"question": "Qu'est-ce qu'une courbe de niveau ?", "fiche": "SM302", "attendus": ["Courbes de niveau"], "difficulte": "facile"},
   {"question": "Si toutes les droites donnent la même limite, est-ce que la limite existe forcément ?", "fiche": "SM302", "attendus": ["Pièges classiques"], "difficulte": "difficile"},
   {"question": "Est-ce que l'ordre compte quand on dérive deux fois par rapport à x puis à y ?", "fiche": "SM302", "attendus": ["théorème de Schwarz"], "difficulte": "moyen"},
-  {"question": "Comment dériver f(x(t), y(t)) par rapport à t ?", "fiche": "SM302", "attendus": ["Règle de la chaîne"], "difficulte": "moyen"}
+  {"question": "Comment dériver f(x(t), y(t)) par rapport à t ?", "fiche": "SM302", "attendus": ["Règle de la chaîne"], "difficulte": "moyen"},
+
+  {"question": "Pourquoi un objet qui se déplace très vite paraît plus court ?", "fiche": "SP303", "attendus": ["Contraction des longueurs", "Ch. 2 · Relativité restreinte"], "difficulte": "difficile"},
+  {"question": "Quels sont les deux postulats d'Einstein ?", "fiche": "SP303", "attendus": ["Les postulats d'Einstein", "Ch. 2 · Relativité restreinte"], "difficulte": "facile"},
+  {"question": "Comment additionner deux vitesses proches de celle de la lumière ?", "fiche": "SP303", "attendus": ["Composition des vitesses", "Ch. 2 · Relativité restreinte"], "difficulte": "moyen"},
+  {"question": "Quelle expérience n'a pas réussi à mesurer le mouvement de la Terre par rapport à l'éther ?", "fiche": "SP303", "attendus": ["Michelson-Morley", "Les limites : l'éther"], "difficulte": "difficile"},
+  {"question": "Quelles grandeurs sont conservées lors d'un choc élastique ?", "fiche": "SP303", "attendus": ["Choc élastique"], "difficulte": "facile"},
+  {"question": "Qu'est-ce qu'un référentiel galiléen ?", "fiche": "SP303", "attendus": ["Référentiel et référentiel galiléen", "Les trois lois de Newton", "Ch. 1 · Galilée"], "difficulte": "moyen"},
+  {"question": "Deux événements simultanés pour un observateur le sont-ils pour un autre qui se déplace ?", "fiche": "SP303", "attendus": ["Relativité de la simultanéité"], "difficulte": "difficile"},
+
+  {"question": "Comment calculer la probabilité de A ou B quand A et B ne sont pas incompatibles ?", "fiche": "SM301", "attendus": ["Chapitre 1"], "difficulte": "moyen"},
+  {"question": "Que vaut la probabilité d'un événement quand toutes les issues ont la même chance ?", "fiche": "SM301", "attendus": ["Chapitre 1"], "difficulte": "facile"},
+  {"question": "Comment calculer la probabilité d'un événement en le découpant selon plusieurs cas possibles ?", "fiche": "SM301", "attendus": ["Chapitre 2"], "difficulte": "difficile"},
+  {"question": "Comment vérifier que deux variables aléatoires sont indépendantes à partir de leur loi conjointe ?", "fiche": "SM301", "attendus": ["Variables aléatoires discrètes"], "difficulte": "moyen"},
+  {"question": "Comment calculer la variance d'une variable aléatoire ?", "fiche": "SM301", "attendus": ["Variables aléatoires discrètes"], "difficulte": "facile"},
+  {"question": "Comment mesurer à quel point deux variables aléatoires varient ensemble ?", "fiche": "SM301", "attendus": ["Covariance et corrélation"], "difficulte": "difficile"},
+  {"question": "Quand peut-on approcher une loi binomiale par une loi de Poisson ?", "fiche": "SM301", "attendus": ["Lois usuelles"], "difficulte": "moyen"},
+
+  {"question": "Quelle est la force entre deux charges ponctuelles ?", "fiche": "SP301", "attendus": ["Loi de Coulomb"], "difficulte": "facile"},
+  {"question": "Deux charges de même signe s'attirent-elles ou se repoussent-elles ?", "fiche": "SP301", "attendus": ["Loi de Coulomb", "Les 4 cas de signes"], "difficulte": "facile"},
+  {"question": "Quelle est l'unité du champ électrique ?", "fiche": "SP301", "attendus": ["Champ électrique"], "difficulte": "moyen"},
+  {"question": "Qu'est-ce qu'un dipôle électrostatique ?", "fiche": "SP301", "attendus": ["Dipôle électrostatique", "Cas à savoir traiter"], "difficulte": "facile"},
+  {"question": "Deux lignes de champ peuvent-elles se croiser ?", "fiche": "SP301", "attendus": ["Lignes de champ"], "difficulte": "moyen"},
+  {"question": "À quoi ressemble le champ électrique entre deux plaques parallèles chargées ?", "fiche": "SP301", "attendus": ["Condensateur plan", "Tous les cas du condensateur"], "difficulte": "difficile"}
 ]
