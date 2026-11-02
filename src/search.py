@@ -8,8 +8,11 @@ from sentence_transformers import SentenceTransformer
 
 from load import load_fiches, chunk_fiche
 
-MODEL_NAME = "sentence-transformers/paraphrase-multilingual-mpnet-base-v2"  # 6/10 au mini-test
-# Ancien : "paraphrase-multilingual-MiniLM-L12-v2" → 5/10
+# Modèle conçu pour la recherche (question courte → passage long). Il attend des préfixes.
+MODEL_NAME = "intfloat/multilingual-e5-base"
+PREFIXE_QUESTION = "query: "
+PREFIXE_PASSAGE = "passage: "
+# Historique : MiniLM → 5/10 (mini-test) ; MPNet (sans préfixes) → 75 % de recall@3 (jeu de test)
 
 DATA_DIR = Path(__file__).parent.parent / "data"
 INDEX_PATH = DATA_DIR / "index.npy"                  # les vecteurs
@@ -20,8 +23,8 @@ model = SentenceTransformer(MODEL_NAME)
 
 
 def texte_a_encoder(passage: dict) -> str:
-    """Le texte réellement encodé pour un passage : titre de section + texte."""
-    return passage["section"] + " : " + passage["text"]
+    """Le texte réellement encodé pour un passage : préfixe + titre de section + texte."""
+    return PREFIXE_PASSAGE + passage["section"] + " : " + passage["text"]
 
 
 def build_index(chunks: list[dict]):
@@ -36,10 +39,10 @@ def build_index(chunks: list[dict]):
 def calculer_empreinte(chunks: list[dict]) -> str:
     """Empreinte SHA-256 du nom du modèle + de tous les textes encodés."""
     h = hashlib.sha256()
-    h.update(MODEL_NAME.encode("utf-8"))           # on « nourrit » le hash avec des octets
+    h.update(MODEL_NAME.encode("utf-8"))
     for passage in chunks:
-        h.update(texte_a_encoder(passage).encode("utf-8"))     # le texte réellement encodé de chaque passage
-    return h.hexdigest()                            # l'empreinte sous forme de texte
+        h.update(texte_a_encoder(passage).encode("utf-8"))
+    return h.hexdigest()
 
 
 def load_or_build_index(chunks: list[dict]):
@@ -48,50 +51,51 @@ def load_or_build_index(chunks: list[dict]):
 
     if INDEX_PATH.exists() and EMPREINTE_PATH.exists():
         ancienne = EMPREINTE_PATH.read_text(encoding="utf-8")
-        if empreinte == ancienne:                              # rien n'a changé ?
+        if empreinte == ancienne:
             print("Index chargé depuis le disque")
             return np.load(INDEX_PATH)
         print("Index périmé (fiches ou modèle modifiés) : on le reconstruit")
 
     embeddings = build_index(chunks)
     np.save(INDEX_PATH, embeddings)
-    EMPREINTE_PATH.write_text(empreinte, encoding="utf-8")   # on sauvegarde l'empreinte avec l'index
+    EMPREINTE_PATH.write_text(empreinte, encoding="utf-8")
     print("Index construit et sauvegardé")
     return embeddings
 
 
-def search(question: str, chunks: list[dict], embeddings, top_k: int = 3) -> list[tuple[float, dict]]:
-    """Renvoie les top_k passages les plus proches de la question : [(score, passage), ...]."""
-    # 1. Encoder la question (même modèle, normalisée aussi)
-    q = model.encode(question, normalize_embeddings=True)
+def search(question: str, chunks: list[dict], embeddings, top_k: int = 3,
+           une_par_section: bool = True) -> list[tuple[float, dict]]:
+    """Renvoie les top_k passages les plus proches de la question : [(score, passage), ...].
 
-    # 2. Un score par passage
+    Si une_par_section est vrai, une section ne peut occuper qu'une seule place dans le résultat.
+    """
+    q = model.encode(PREFIXE_QUESTION + question, normalize_embeddings=True)
     scores = embeddings @ q
 
-    # 3. Les indices des top_k meilleurs scores, du plus grand au plus petit
-    meilleurs = np.argsort(scores)[::-1][:top_k]
-
+    ordre = np.argsort(scores)[::-1]           # TOUS les passages, du meilleur au moins bon
     resultats = []
-    for i in meilleurs:
-        resultats.append((float(scores[i]), chunks[i]))
+    sections_vues = set()                       # les (fiche, section) qui ont déjà une place
+
+    for i in ordre:
+        passage = chunks[i]
+        cle = (passage["source"], passage["section"])
+        if une_par_section and cle in sections_vues:     # section déjà prise → on saute ce passage
+            continue
+        sections_vues.add(cle)                           # on retient cette section
+        resultats.append((float(scores[i]), passage))
+        if len(resultats) == top_k:                      # on a assez de passages : on s'arrête
+            break
     return resultats
 
 
 if __name__ == "__main__":
     question = " ".join(sys.argv[1:]) or "Qu'est-ce qu'une bascule JK ?"
 
-    # 1. Charger les fiches
-    fiches = load_fiches()
-
-    # 2. Découper chaque fiche et tout mettre dans UNE seule liste de passages
     chunks = []
-    for fiche in fiches:
-        chunks.extend(chunk_fiche(fiche))     # ajouter PLUSIEURS éléments d'un coup à une liste
-
-    # 3. Charger l'index (ou le construire s'il est absent ou périmé)
+    for fiche in load_fiches():
+        chunks.extend(chunk_fiche(fiche))
     embeddings = load_or_build_index(chunks)
 
-    # 4. Chercher et afficher
     print("\nQuestion :", question, "\n")
     for score, passage in search(question, chunks, embeddings):
         print(f"[{score:.2f}] {passage['source']} › {passage['section']}")

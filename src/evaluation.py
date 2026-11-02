@@ -19,15 +19,15 @@ def est_pertinent(passage: dict, q: dict) -> bool:
     return False
 
 
-def evaluer(questions: list[dict], chunks: list[dict], embeddings, k: int = K):
+def evaluer(questions: list[dict], chunks: list[dict], embeddings, k: int = K, une_par_section: bool = True):
     """Pose chaque question à la recherche et compte les réussites (au moins un passage pertinent dans le top k)."""
     reussites = 0
-    total_par_diff = {}        # ex. {"facile": 12, "moyen": 15, "difficile": 13}
-    ok_par_diff = {}           # combien de réussites par difficulté
-    echecs = []                # pour regarder ensuite ce qui a raté
+    total_par_diff = {}
+    ok_par_diff = {}
+    echecs = []
 
     for q in questions:
-        resultats = search(q["question"], chunks, embeddings, top_k=k)
+        resultats = search(q["question"], chunks, embeddings, top_k=k, une_par_section=une_par_section)
 
         trouve = False
         for score, passage in resultats:
@@ -45,28 +45,37 @@ def evaluer(questions: list[dict], chunks: list[dict], embeddings, k: int = K):
     return reussites, total_par_diff, ok_par_diff, echecs
 
 
+def afficher(nom: str, questions: list[dict], reussites: int, total_par_diff: dict, ok_par_diff: dict):
+    """Affiche le recall@k global puis par difficulté."""
+    print(f"\n=== {nom} ===")
+    print(f"recall@{K} : {reussites}/{len(questions)} = {100 * reussites / len(questions):.0f} %")
+    for diff in ["facile", "moyen", "difficile"]:
+        print(f"  {diff:10} {ok_par_diff.get(diff, 0)}/{total_par_diff.get(diff, 0)}")
+
+
 if __name__ == "__main__":
-    # 1. Charger le jeu de test (fichier JSON → liste de dictionnaires Python)
     with open(QUESTIONS_PATH, encoding="utf-8") as fichier:
         questions = json.load(fichier)
 
-    # 2. Charger les passages et l'index
     chunks = []
     for fiche in load_fiches():
         chunks.extend(chunk_fiche(fiche))
     embeddings = load_or_build_index(chunks)
 
-    # 3. Évaluer
-    reussites, total_par_diff, ok_par_diff, echecs = evaluer(questions, chunks, embeddings)
+    # On compare les méthodes : (nom affiché, valeur de une_par_section)
+    METHODES = [
+        ("Référence (top 3 brut)", False),
+        ("A : une place par section", True),
+    ]
 
-    # 4. Afficher les résultats
-    print(f"\nrecall@{K} : {reussites}/{len(questions)} = {100 * reussites / len(questions):.0f} %\n")
-    for diff in ["facile", "moyen", "difficile"]:
-        ok = ok_par_diff.get(diff, 0)
-        total = total_par_diff.get(diff, 0)
-        print(f"  {diff:10} {ok}/{total}")
+    for nom, une_par_section in METHODES:
+        reussites, total_par_diff, ok_par_diff, echecs = evaluer(
+            questions, chunks, embeddings, une_par_section=une_par_section
+        )
+        afficher(nom, questions, reussites, total_par_diff, ok_par_diff)
 
-    print(f"\nÉCHECS ({len(echecs)}) :")
+    # Les échecs de la DERNIÈRE méthode évaluée (la meilleure, en principe)
+    print(f"\nÉCHECS restants ({len(echecs)}) :")
     for q, resultats in echecs:
         print(f"\n❌ [{q['fiche']}] {q['question']}")
         for score, passage in resultats:
