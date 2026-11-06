@@ -4,7 +4,7 @@ from pathlib import Path
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.pipeline import make_pipeline
 
 from load import load_fiches, chunk_fiche
@@ -61,31 +61,52 @@ def creer_modele(equilibre: bool):
     )
 
 
+# ---------- 3. Évaluer ----------
+
+def afficher_matrice(y_vrai: list[str], y_predit: list[str], matieres: list[str]):
+    """Matrice de confusion : lignes = vraie matière, colonnes = matière prédite."""
+    matrice = confusion_matrix(y_vrai, y_predit, labels=matieres)
+    print("vraie \\ prédite " + "".join(f"{m:>7}" for m in matieres))
+    for i, ligne in enumerate(matrice):
+        print(f"{matieres[i]:>15} " + "".join(f"{n:>7}" for n in ligne))
+
+
+def expliquer(modele, question: str):
+    """Pour chaque mot connu de la question : la matière pour laquelle il vote le plus, et son poids."""
+    tfidf = modele[0]                           # 1re étape du pipeline : le TfidfVectorizer
+    reglog = modele[1]                          # 2e étape : la régression logistique
+    vocabulaire = tfidf.vocabulary_             # dictionnaire mot → numéro de colonne
+
+    print(f"\n« {question} »  →  prédit : {modele.predict([question])[0]}")
+    for mot in tfidf.build_analyzer()(question):          # découpe la question en mots, comme TF-IDF
+        if mot not in vocabulaire:
+            print(f"   {mot:15} (inconnu : jamais vu dans les fiches, ignoré)")
+            continue
+        colonne = vocabulaire[mot]
+        poids_par_matiere = reglog.coef_[:, colonne]       # un poids par matière pour ce mot
+        meilleure = poids_par_matiere.argmax()                # l'indice de la matière au plus grand poids
+        print(f"   {mot:15} vote {reglog.classes_[meilleure]}  (poids {poids_par_matiere[meilleure]:+.2f})")
+
+
 if __name__ == "__main__":
     X_train, y_train = preparer_entrainement()
     X_test, y_test = preparer_test()
-    print(f"Entraînement : {len(X_train)} passages   |   Test : {len(X_test)} questions\n")
+    matieres = sorted(compter(y_train))
 
-    # Références naïves
-    nb_matieres = len(compter(y_train))
-    print(f"Référence « au hasard »                 : {100 / nb_matieres:.0f} %")
-    plus_frequente = max(compter(y_train), key=compter(y_train).get)
-    toujours_meme = [plus_frequente] * len(y_test)
-    print(f"Référence « toujours {plus_frequente} »            : {100 * accuracy_score(y_test, toujours_meme):.0f} %\n")
+    # On garde le meilleur modèle de mercredi : l'équilibré
+    modele = creer_modele(equilibre=True)
+    modele.fit(X_train, y_train)
+    predictions = modele.predict(X_test)
+    print(f"Précision : {100 * accuracy_score(y_test, predictions):.0f} %\n")
 
-    # Les deux modèles
-    for nom, equilibre in [("Normal", False), ("Équilibré", True)]:
-        modele = creer_modele(equilibre)
-        modele.fit(X_train, y_train)                # ENTRAÎNER sur les passages
-        predictions = modele.predict(X_test)            # PRÉDIRE sur les questions jamais vues
-        precision = accuracy_score(y_test, predictions)
-        print(f"{nom:10} : précision = {100 * precision:.0f} %  ({sum(p == v for p, v in zip(predictions, y_test))}/{len(y_test)})")
+    # 1. Matrice de confusion
+    afficher_matrice(y_test, predictions, matieres)
 
-    # Le modèle équilibré sur 3 questions, avec ses probabilités
-    print("\nExemples (modèle équilibré) :")
-    for question in ["Qu'est-ce qu'une bascule JK ?",
-                     "Comment calculer la variance ?",
-                     "Comment arrêter un processus avec un signal ?"]:
-        probas = modele.predict_proba([question])[0]          # une probabilité par matière
-        meilleure = probas.argmax()
-        print(f"  {question:50} → {modele.classes_[meilleure]} ({100 * probas[meilleure]:.0f} %)")
+    # 2. Les erreurs
+    print("\nERREURS :")
+    for question, vraie, predite in zip(X_test, y_test, predictions):
+        if vraie != predite:
+            print(f"  ❌ {vraie} prédit {predite} : {question}")
+
+    # 3. Pourquoi « variance » part vers Linux ?
+    expliquer(modele, "Comment calculer la variance ?")
